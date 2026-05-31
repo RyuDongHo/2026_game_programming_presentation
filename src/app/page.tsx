@@ -440,6 +440,188 @@ void OnHitReaction(HitReactionController* self, int prev, int next) {
           <div className="mt-16 border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-6 lg:p-10">
             <InstanceMapDiagram />
           </div>
+
+          {/* ── 부록. Dangling pointer 사연 + 두 해결책 ── */}
+          <div className="mt-24 border-t border-hairline pt-12">
+            <p className="t-eyebrow text-graphite">Appendix</p>
+            <h3 className="t-display-sm mt-6 max-w-[24ch]">
+              GameObject가 늘어날 때 우리가 마주한 use-after-free.
+            </h3>
+
+            {/* (a) 사건 */}
+            <div className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
+              <div className="col-span-12 lg:col-span-3">
+                <p className="t-meta text-stone">Case</p>
+                <p className="t-eyebrow text-graphite mt-2">The Incident</p>
+              </div>
+              <div className="col-span-12 lg:col-span-9 space-y-6">
+                <h4 className="t-heading-md">
+                  적을 베면 디버거가 <span className="text-ink">0xFFFF…FFFB</span>를 띄웠다.
+                </h4>
+                <p className="t-body text-graphite">
+                  검 한 번 → CombatSystem이 hitbox 안 적을 순회 → 한 마리 죽음 →
+                  Subscribe 체인이 OnLifeEnemyDead 발화 → StarSpawner가
+                  <span className="text-ink"> loop.AddGameObject(star)</span> 호출 →
+                  내부적으로 <span className="text-ink">gameWorld.push_back</span>.
+                </p>
+                <p className="t-body text-graphite">
+                  그 순간 vector capacity 초과 → <span className="text-ink">재할당</span>
+                  → 옛 메모리 free. 하지만 CombatSystem의 range-based for는 옛
+                  iterator를 잡고 있었다. 다음 반복에서 freed 메모리를 read →
+                  debug heap의 sentinel 값 <span className="text-ink">0xFFFF…FFFB</span> →
+                  그걸 GameObject*로 dereference → access violation.
+                </p>
+                <pre className="code-block">
+{`// CombatSystem.cpp — 사고 현장
+for (GameObject* target : gameObjects) {  // begin/end iterator 캡쳐
+    ...
+    targetHs->SetCurrent(prev - hit.damage);
+    //   ↓ Subscribe 체인이 도미노로 발화
+    //   ↓ → OnHealthAutoDeath → LifeState.SetDead
+    //   ↓ → OnLifeEnemyDead   → StarSpawner.SpawnAt
+    //   ↓ → loop.AddGameObject → gameWorld.push_back
+    //   ↓ → vector 재할당 → 옛 메모리 free
+    //   ↓ 우리 iterator는 옛 메모리를 가리킨 채 dangling
+}                                          // 다음 ++iter → 💥`}
+                </pre>
+                <p className="t-body text-graphite">
+                  엄밀히는 메모리 leak이 아니라 <span className="text-ink">
+                  iterator invalidation으로 인한 use-after-free</span>. MSVC debug
+                  heap이 free된 메모리에 채워둔 sentinel을 우리가 GameObject로
+                  해석한 것.
+                </p>
+              </div>
+            </div>
+
+            {/* (b) Solution A — Pooling */}
+            <div className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
+              <div className="col-span-12 lg:col-span-3">
+                <p className="t-meta text-stone">Fix · A</p>
+                <p className="t-eyebrow text-graphite mt-2">Pooling</p>
+              </div>
+              <div className="col-span-12 lg:col-span-9 space-y-6">
+                <h4 className="t-heading-md">
+                  생성을 게임 시작 전에 끝낸다 — Enemy.
+                </h4>
+                <p className="t-body text-graphite">
+                  Enemy는 한 번 spawn된 뒤 죽고, 다시 spawn되고를 반복한다.
+                  매번 new/delete할 이유가 없다. 게임 시작 전에 100마리를
+                  미리 생성해서 풀에 넣고, 활성/비활성만 토글한다.
+                  <span className="text-ink"> 런타임에 push_back이 일어나지 않으므로
+                  iterator invalidation 위험 자체가 없다.</span>
+                </p>
+                <pre className="code-block">
+{`// main.cpp — 게임 루프 시작 전에 미리 생성
+spawner1->PreAllocate(50);   // Orc1
+spawner2->PreAllocate(50);   // Orc2
+loop.Run();                  // 여기서부터 gameWorld 크기 불변
+
+// EnemySpawner.cpp — 풀에서 꺼내쓰기
+void Spawn() {
+    if (inactivePool.empty()) return;  // 한도 도달이면 그냥 skip
+    GameObject* enemy = inactivePool.back();
+    inactivePool.pop_back();
+    enemy->position = randomSpawnPos();
+    enemy->GetState<EnemyState>()->SetMove(...);   // 활성화
+    // 새 push_back 없음 — 그저 옛 GameObject를 재사용
+}
+
+void ReturnToPool(GameObject* enemy) {
+    enemy->position = { 100.0f, 100.0f, 10.0f };   // 영역 밖 격리
+    enemy->GetState<EnemyState>()->SetDisabled();
+    inactivePool.push_back(enemy);                  // 풀에만 push
+}`}
+                </pre>
+                <p className="t-body text-graphite">
+                  트레이드오프: 활성 + 비활성 합쳐 <span className="text-ink">100마리
+                  상한</span>. 게임 디자인이 그 안에서 동작해야 한다.
+                </p>
+              </div>
+            </div>
+
+            {/* (c) Solution B — 동적 spawn + reserve */}
+            <div className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
+              <div className="col-span-12 lg:col-span-3">
+                <p className="t-meta text-stone">Fix · B</p>
+                <p className="t-eyebrow text-graphite mt-2">Dynamic + reserve</p>
+              </div>
+              <div className="col-span-12 lg:col-span-9 space-y-6">
+                <h4 className="t-heading-md">
+                  capacity를 미리 확보해 재할당 자체를 막는다 — Star.
+                </h4>
+                <p className="t-body text-graphite">
+                  Star는 적이 죽는 자리마다 생기고 픽업되면 사라진다. 풀로 묶기
+                  어렵다 (위치가 매번 다르고 수명도 짧음). 그래서 동적 spawn은
+                  유지하되 <span className="text-ink">vector.reserve(1024)</span>로
+                  capacity를 게임 시작 시점에 충분히 확보한다.
+                </p>
+                <pre className="code-block">
+{`// GameLoop 생성자 — capacity 미리 확보
+GameLoop::GameLoop() {
+    gameWorld.reserve(1024);   // ← 핵심 한 줄
+}
+
+// 이후 push_back은 size만 늘릴 뿐, 기존 메모리는 그대로.
+// range-based for가 잡은 begin/end iterator는 invalidate되지 않는다.
+//
+// 단, range-based for의 end는 캡쳐 시점 기준이라
+// "같은 프레임에 push된 새 Star"는 이번 루프에선 안 보임 — 그게 의도된 동작.`}
+                </pre>
+                <p className="t-body text-graphite">
+                  표면적으로는 단순한 한 줄이지만 정확히는{" "}
+                  <span className="text-ink">
+                    &quot;vector가 재할당하지 않는 한 push_back은 iterator를
+                    무효화하지 않는다&quot;
+                  </span>{" "}
+                  는 표준 보장을 활용. 1024를 넘어가면 다시 위험해지므로 게임
+                  특성상 동시 GameObject 수가 그 안에 머문다는 가정 위에서 동작.
+                </p>
+              </div>
+            </div>
+
+            {/* (d) 비교 */}
+            <div className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
+              <div className="col-span-12 lg:col-span-3">
+                <p className="t-meta text-stone">Compare</p>
+                <p className="t-eyebrow text-graphite mt-2">Trade-offs</p>
+              </div>
+              <div className="col-span-12 lg:col-span-9">
+                <div className="overflow-x-auto border-t border-b border-hairline-soft">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-hairline-soft">
+                        <th className="text-left t-eyebrow text-graphite py-3 pr-6">기준</th>
+                        <th className="text-left t-eyebrow text-graphite py-3 pr-6">Pooling (Enemy)</th>
+                        <th className="text-left t-eyebrow text-graphite py-3">Dynamic + reserve (Star)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["언제 할당",        "게임 시작 전",           "런타임 (적 사망 시)"],
+                        ["push_back 발생",  "X (Run 이후)",            "O (매 사망마다)"],
+                        ["iterator 안전",    "구조적으로 보장",          "capacity 안에서만 보장"],
+                        ["수량 상한",        "PreAllocate 값 (100)",    "reserve 값 (1024)"],
+                        ["적합한 객체",      "수명이 길고 재사용 가능",   "수명이 짧고 위치가 매번 다름"],
+                      ].map(([k, a, b]) => (
+                        <tr key={k} className="border-b border-hairline">
+                          <td className="t-body-strong text-ink py-4 pr-6 align-top w-40">{k}</td>
+                          <td className="t-body text-graphite py-4 pr-6 align-top">{a}</td>
+                          <td className="t-body text-graphite py-4 align-top">{b}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="t-body text-graphite mt-6">
+                  결론: <span className="text-ink">한 가지 정답은 없다.</span>{" "}
+                  객체의 수명/빈도/상한 가능 여부에 따라 두 전략을 골라 쓴다.
+                  Subscribe 도미노가 push_back을 일으킨다는 사실을 알고 나면
+                  새 시스템을 추가할 때마다 같은 질문을 던지게 된다 — &quot;이건
+                  풀로 묶을 수 있나, 동적으로 가야 하나?&quot;
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
