@@ -1,28 +1,23 @@
 import Link from "next/link";
+import { SubscribeDiagram, InstanceMapDiagram } from "./diagrams";
 
-/* DESIGN.md 토큰 매핑:
- *  - 전반: monochrome (ink/graphite/slate/hairline), 단일 sans, hairline divider
- *  - 리듬: editorial eyebrow + display lockup, 64–96px section gutter
- *  - hero/interlude: scrim(#1a1a1a) 다크 패널 + 흰 본문 band 교차
- *  - CTA: black pill (.btn-primary)
- * 프레젠테이션 톤: 각 슬라이드는 화면 가득 (min-h-screen), 큰 display headline. */
+/* 10분 발표 분량 — Hero + 4 main + footer.
+ * 02. Subscribe 패턴이 시스템의 핵심이라 가장 큰 비중. */
 
 const slides = [
-  { num: "01", id: "rules",         label: "Programme" },
-  { num: "02", id: "instances",     label: "Instance Map" },
-  { num: "03", id: "class-diagram", label: "Diagram Notes" },
-  { num: "04", id: "demo",          label: "Demo" },
+  { num: "01", id: "rules",          label: "Rules" },
+  { num: "02", id: "subscribe",      label: "Subscribe Pattern" },
+  { num: "03", id: "instances",      label: "Instance Map" },
+  { num: "04", id: "demo",           label: "Demo" },
 ];
 
 export default function Home() {
   return (
     <>
-      {/* ─────────────────────────────────────────────
-          NAV — canvas, lowercase wordmark + nav links
-      ────────────────────────────────────────────── */}
+      {/* NAV */}
       <header className="sticky top-0 z-50 bg-canvas/95 backdrop-blur border-b border-hairline">
         <div className="mx-auto max-w-[1280px] flex items-center justify-between px-6 lg:px-12 h-16">
-          <Link href="#top" className="t-link-sm text-ink lowercase tracking-tight">
+          <Link href="#top" className="t-link-sm text-ink lowercase">
             custom game engine
           </Link>
           <nav className="hidden md:flex items-center gap-8">
@@ -32,74 +27,63 @@ export default function Home() {
               </a>
             ))}
           </nav>
-          <a
-            href="https://github.com/RyuDongHo/custom-game-engine"
-            className="btn-primary"
-          >
+          <a href="https://github.com/RyuDongHo/custom-game-engine" className="btn-primary">
             View Repo
           </a>
         </div>
       </header>
 
-      {/* ─────────────────────────────────────────────
-          HERO — scrim 다크 패널 + display
-      ────────────────────────────────────────────── */}
+      {/* HERO */}
       <section
         id="top"
-        className="bg-scrim text-on-primary"
+        className="text-on-primary"
         style={{ backgroundColor: "var(--color-scrim)" }}
       >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[160px] min-h-[88vh] flex flex-col justify-end">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[140px] min-h-[78vh] flex flex-col justify-end">
           <p className="t-eyebrow text-on-primary/70">
             2026 · Game Programming · Presentation
           </p>
-          <h1 className="t-display mt-6 max-w-[18ch]">
-            A small DirectX 11 game,
-            <br />
-            engineered as a quiet system.
+          <h1 className="t-display mt-6 max-w-[20ch]">
+            One pattern carries the whole engine: Subscribe.
           </h1>
-          <p className="t-subtitle mt-8 max-w-[42ch] text-on-primary/80">
-            Subscribe-driven state, Component-Entity composition,
-            asynchronous Firebase logging. Four slides.
+          <p className="t-subtitle mt-8 max-w-[44ch] text-on-primary/80">
+            DirectX 11 위의 작은 2D 게임. Component는 데이터만 들고,
+            모든 반응은 ObservableState의 구독자로 흘러간다.
           </p>
           <div className="mt-12 flex gap-3">
-            <a href="#rules" className="btn-primary-on-dark">Start Programme</a>
-            <a href="#demo" className="t-link-sm self-center text-on-primary/80 underline underline-offset-4">
-              Skip to Demo →
+            <a href="#rules" className="btn-primary-on-dark">Start</a>
+            <a
+              href="#subscribe"
+              className="t-link-sm self-center text-on-primary/80 underline underline-offset-4"
+            >
+              Jump to the pattern →
             </a>
           </div>
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────────
-          INDEX — programme listing
-      ────────────────────────────────────────────── */}
+      {/* PROGRAMME INDEX */}
       <section className="bg-canvas">
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px]">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[72px]">
           <p className="t-eyebrow text-graphite">Programme</p>
-          <h2 className="t-heading-md mt-6 max-w-[24ch]">
-            Four sections, one continuous reading.
-          </h2>
-          <ul className="mt-16 divide-y divide-hairline border-y border-hairline">
-            {slides.map((s, i) => (
-              <li key={s.id}>
+          <ul className="mt-10 divide-y divide-hairline border-y border-hairline">
+            {[
+              "게임 룰",
+              "Subscribe 패턴  ★",
+              "오브젝트 인스턴스 맵",
+              "게임 실행 데모",
+            ].map((title, i) => (
+              <li key={slides[i].id}>
                 <a
-                  href={`#${s.id}`}
-                  className="group flex items-baseline justify-between py-6 lg:py-8 hover:bg-canvas-warm transition"
+                  href={`#${slides[i].id}`}
+                  className="group flex items-baseline justify-between py-6 hover:bg-canvas-warm transition"
                 >
                   <span className="flex items-baseline gap-8">
-                    <span className="t-meta text-stone w-10">{s.num}</span>
-                    <span className="t-heading-sm text-ink">
-                      {[
-                        "게임 룰 설명",
-                        "오브젝트 인스턴스 맵",
-                        "클래스 다이어그램 — 특이한 부분",
-                        "게임 실행 데모",
-                      ][i]}
-                    </span>
+                    <span className="t-meta text-stone w-10">{slides[i].num}</span>
+                    <span className="t-heading-sm text-ink">{title}</span>
                   </span>
                   <span className="t-link-sm text-graphite group-hover:text-ink">
-                    {s.label} →
+                    {slides[i].label} →
                   </span>
                 </a>
               </li>
@@ -108,29 +92,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────────
-          01. 게임 룰 설명 (Programme)
-      ────────────────────────────────────────────── */}
-      <section
-        id="rules"
-        className="bg-canvas border-t border-hairline scroll-mt-16"
-      >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[160px] min-h-screen flex flex-col">
+      {/* ──────────── 01. 게임 룰 (간략) ──────────── */}
+      <section id="rules" className="bg-canvas border-t border-hairline scroll-mt-16">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[140px]">
           <div className="flex items-baseline gap-8">
             <span className="t-meta text-stone w-10">01</span>
-            <p className="t-eyebrow text-graphite">Programme</p>
+            <p className="t-eyebrow text-graphite">Rules</p>
           </div>
-
           <h2 className="t-display mt-8 max-w-[22ch]">
-            Hunt enemies. Collect stars. Outlast the redshift.
+            적을 베고, 별을 줍고, 점점 빨라지는 적을 견딘다.
           </h2>
 
           <div className="mt-16 grid grid-cols-12 gap-x-8 gap-y-12">
             <p className="col-span-12 lg:col-span-7 t-subtitle text-graphite">
-              플레이어는 적의 공격을 피하면서 검으로 처치하고, 떨어진 별을 모아
-              점수를 올린다. 10초마다 레벨이 오르고 적 속도가 10%씩 빨라지며
-              배경이 점점 붉어진다. 결국 적이 플레이어를 능가하는 순간 게임은
-              조용히 한계에 닿는다.
+              10초마다 레벨이 1씩 오르고 적 속도가 10%씩 증가한다.
+              배경은 점점 붉어지고 결국 적이 플레이어를 능가하는 순간
+              게임은 한계에 닿는다.
             </p>
 
             <div className="col-span-12 lg:col-span-5 lg:col-start-8">
@@ -139,10 +116,10 @@ export default function Home() {
                 {[
                   ["WASD / Arrows", "이동"],
                   ["Space", "검 공격"],
-                  ["F", "전체화면 토글"],
+                  ["F", "전체화면"],
                   ["ESC", "종료"],
                 ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between py-4">
+                  <div key={k} className="flex justify-between py-3">
                     <dt className="t-body-strong text-ink">{k}</dt>
                     <dd className="t-body text-graphite">{v}</dd>
                   </div>
@@ -151,9 +128,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-20">
-            <p className="t-eyebrow text-graphite">Game Flow</p>
-            <pre className="code-block mt-6">
+          <pre className="code-block mt-16">
 {`MainMenu ──[Space]──► Playing ──[HP==0]──► GameOver
                        │
                        │ every 10s
@@ -161,146 +136,69 @@ export default function Home() {
                   level += 1
                   enemy speed × (1 + 0.1·(level−1))
                   background brown → red`}
-            </pre>
-          </div>
-
-          <div className="mt-20 grid grid-cols-12 gap-x-8">
-            <div className="col-span-12 lg:col-span-7">
-              <p className="t-eyebrow text-graphite">Score</p>
-              <p className="t-body text-graphite mt-6">
-                적 1마리 처치 → 사망 위치에 Star 생성. Player가 Star에 접촉하면
-                점수 +1 + <span className="t-body-strong text-ink">get_star.mp3</span>.
-                점수는 Player의 <span className="t-body-strong text-ink">ScoreState</span>
-                (Observable&lt;int&gt;)로 보관되어 UI 도입 시 Subscribe만 추가하면 됨.
-              </p>
-            </div>
-          </div>
+          </pre>
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────────
-          02. Instance Map
-      ────────────────────────────────────────────── */}
+      {/* ──────────── 02. Subscribe 패턴 (메인) ──────────── */}
       <section
-        id="instances"
+        id="subscribe"
         className="bg-canvas border-t border-hairline scroll-mt-16"
       >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[160px] min-h-screen flex flex-col">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[160px]">
           <div className="flex items-baseline gap-8">
             <span className="t-meta text-stone w-10">02</span>
-            <p className="t-eyebrow text-graphite">Instance Map</p>
+            <p className="t-eyebrow text-graphite">The Pattern</p>
           </div>
-
           <h2 className="t-display mt-8 max-w-[22ch]">
-            What actually lives in the world at runtime.
+            데이터가 바뀌면, 그걸 듣고 있던 사람들이 반응한다.
           </h2>
-
-          <p className="t-subtitle text-graphite mt-12 max-w-[58ch]">
-            게임 시작 시 GameLoop의 <span className="text-ink">gameWorld</span> 벡터에
-            아래 GameObject들이 등록된다. 적은 풀링이라 활성 + 비활성 합쳐
-            최대 100마리, Star는 적이 죽을 때마다 동적 생성.
+          <p className="t-subtitle text-graphite mt-10 max-w-[58ch]">
+            HP가 바뀌면 — 어디서 깎였든 — 같은 콜백 체인이 발화된다.
+            사망 처리도, 빨간 깜빡임도, 다음 단계도 모두 구독자의 책임.
+            트리거하는 쪽은 그저 <span className="text-ink">Set()</span>만 부른다.
           </p>
 
-          <pre className="code-block mt-16">
-{`GameLoop
-├── gameWorld (vector<GameObject*>, reserve 1024)
-│   ├── GameRoot       — GameState + GameFlowController
-│   ├── StageTerrain   — LevelLayout (timer → level)
-│   ├── Wall_BoundsTop / Bottom / Left / Right (4)
-│   ├── Player         — Attack/Life/Movement/Health/ScoreState
-│   │                    + AttackController/HealthController/PlayerControl
-│   │                    + VelocityController/SpriteAnimator/HitReactionController
-│   │                    + DeathTimer/MeshRenderer/BoxCollider
-│   ├── Enemy_1 .. Enemy_100   (풀: 50 Orc1 + 50 Orc2)
-│   │                    EnemyState/HealthState/LifeState
-│   │                    + EnemyController/HealthController/VelocityController
-│   │                    + SpriteAnimator/HitReactionController
-│   │                    + MeshRenderer/BoxCollider
-│   └── Star_N         (적 사망 시 동적 spawn)
-│                       PickupItem + BoxCollider + MeshRenderer + SpriteAnimator
-│
-├── collisionSystem    — BoxCollider AABB prevention
-├── combatSystem       — 공격 hitbox 큐
-└── spawners
-    ├── EnemySpawner (Orc1)
-    └── EnemySpawner (Orc2)   — 둘 다 StarSpawner 참조 보유
+          {/* SVG 다이어그램 */}
+          <div className="mt-16 border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-6 lg:p-10">
+            <SubscribeDiagram />
+          </div>
 
-Logger
-├── ConsoleLogSink
-└── FirebaseLogSink    — 비동기 큐 + worker thread → Realtime DB`}
-          </pre>
-
-          <div className="mt-16 grid grid-cols-12 gap-x-8 gap-y-8 border-t border-hairline pt-12">
+          {/* 3-step 설명 */}
+          <ol className="mt-16 grid grid-cols-12 gap-x-8 gap-y-10 border-t border-hairline pt-12">
             {[
-              { n: "1024", l: "gameWorld reserve" },
-              { n: "100",  l: "최대 활성 적" },
-              { n: "10s",  l: "Level Up Interval" },
-              { n: "1h",   l: "Firebase idToken 유효" },
-            ].map((m) => (
-              <div key={m.l} className="col-span-6 lg:col-span-3">
-                <p className="t-display-sm text-ink">{m.n}</p>
-                <p className="t-meta text-stone mt-3">{m.l}</p>
-              </div>
+              {
+                k: "Subscribe",
+                t: "한 번 등록",
+                d: "Controller.Start()에서 hs.Subscribe([this](p,n){...}). 이후 평생.",
+              },
+              {
+                k: "Set",
+                t: "값을 바꾼다",
+                d: "트리거(공격/접촉)는 HealthState.SetCurrent만 호출. 어떻게 반응할지는 모름.",
+              },
+              {
+                k: "Fan-out",
+                t: "구독자들이 자동 반응",
+                d: "ObservableState.Set이 모든 콜백을 (prev,next)와 함께 발화. snapshot copy로 reallocation 안전.",
+              },
+            ].map((s, i) => (
+              <li key={s.k} className="col-span-12 lg:col-span-4">
+                <p className="t-meta text-stone">0{i + 1}</p>
+                <p className="t-eyebrow text-graphite mt-2">{s.k}</p>
+                <h3 className="t-heading-sm mt-4">{s.t}</h3>
+                <p className="t-body text-graphite mt-3">{s.d}</p>
+              </li>
             ))}
-          </div>
-        </div>
-      </section>
+          </ol>
 
-      {/* ─────────────────────────────────────────────
-          INTERLUDE — scrim 다크 패널
-      ────────────────────────────────────────────── */}
-      <section
-        className="text-on-primary"
-        style={{ backgroundColor: "var(--color-scrim)" }}
-      >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[140px]">
-          <p className="t-eyebrow text-on-primary/70">Intermission</p>
-          <p className="t-heading-md mt-8 max-w-[28ch] text-on-primary">
-            Components hold data. Free functions react.
-            <br />
-            <span className="text-on-primary/60">
-              State changes ripple outward through Subscribe.
-            </span>
-          </p>
-        </div>
-      </section>
-
-      {/* ─────────────────────────────────────────────
-          03. Diagram Notes
-      ────────────────────────────────────────────── */}
-      <section
-        id="class-diagram"
-        className="bg-canvas border-t border-hairline scroll-mt-16"
-      >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[160px] min-h-screen flex flex-col">
-          <div className="flex items-baseline gap-8">
-            <span className="t-meta text-stone w-10">03</span>
-            <p className="t-eyebrow text-graphite">Diagram Notes</p>
-          </div>
-
-          <h2 className="t-display mt-8 max-w-[22ch]">
-            Four design moves worth pointing at.
-          </h2>
-
-          {/* (a) ObservableState */}
-          <article className="mt-20 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
-            <p className="col-span-12 lg:col-span-3 t-eyebrow text-graphite">
-              a · Observer
-            </p>
-            <div className="col-span-12 lg:col-span-9 space-y-6">
-              <h3 className="t-heading-md">
-                ObservableState&lt;TEnum&gt;
-              </h3>
-              <p className="t-body text-graphite">
-                State는 단순 enum 값이 아니라 변경 시 구독자에게 알린다.
-                Component는 Start()에서 Subscribe만 하면 되고, &quot;값이 바뀌면
-                무엇을 할지&quot;는 모두 StateCallbacks 자유 함수에 응집된다.
-              </p>
-              <pre className="code-block">
+          {/* 코드 */}
+          <pre className="code-block mt-16">
 {`template<typename TEnum>
 class ObservableState : public State {
     TEnum current;
     std::vector<Callback> subscribers;
+
     void Set(TEnum next) {
         if (current == next) return;
         const TEnum prev = current; current = next;
@@ -308,121 +206,66 @@ class ObservableState : public State {
         const auto callbacks = subscribers;
         for (auto& cb : callbacks) cb(prev, next);
     }
+    void Subscribe(Callback cb) { subscribers.push_back(std::move(cb)); }
 };`}
-              </pre>
-            </div>
-          </article>
+          </pre>
 
-          {/* (b) StateCallbacks */}
-          <article className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
+          {/* 왜 중요한가 */}
+          <div className="mt-16 grid grid-cols-12 gap-x-8 border-t border-hairline pt-12">
             <p className="col-span-12 lg:col-span-3 t-eyebrow text-graphite">
-              b · Cohesion
+              Why it matters
             </p>
-            <div className="col-span-12 lg:col-span-9 space-y-6">
-              <h3 className="t-heading-md">StateCallbacks 응집</h3>
-              <p className="t-body text-graphite">
-                Component class 안에 동작 메서드를 두지 않고 모든 reaction을
-                <span className="text-ink"> Callbacks/StateCallbacks.cpp</span>의
-                자유 함수로 모은다. HP가 0이 되어 사망 처리될 때 어디서 데미지가
-                발생했든 (CombatSystem 공격 / OnCollisionEnter 접촉) 같은 콜백
-                체인이 동일하게 발화. 동작 분기가 한 곳에 있어 디버깅이 쉽다.
-              </p>
-            </div>
-          </article>
-
-          {/* (c) BoxCollider */}
-          <article className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
-            <p className="col-span-12 lg:col-span-3 t-eyebrow text-graphite">
-              c · Collision
+            <p className="col-span-12 lg:col-span-9 t-subtitle text-graphite">
+              어디서 데미지가 발생했든 — CombatSystem의 공격이든 OnCollisionEnter의
+              접촉이든 — 같은 콜백 체인을 탄다. 사망 처리/시각 반응/사운드/Star
+              스폰이 한 곳(<span className="text-ink">StateCallbacks</span>)에 응집되어
+              새 트리거를 추가해도 반응 로직은 건드릴 필요가 없다.
             </p>
-            <div className="col-span-12 lg:col-span-9 space-y-6">
-              <h3 className="t-heading-md">BoxCollider · swept-axis prevention</h3>
-              <p className="t-body text-graphite">
-                모든 충돌체는 BoxCollider. CollisionSystem이 매 프레임 X/Y 축을
-                분리해 이동을 시도하고, 다음 위치가 차단 대상과 겹치면 그 축의
-                이동만 취소한다(밀어내기 X). 케이스별 차단 대상은 다르다.
-              </p>
-              <div className="overflow-x-auto border-t border-b border-hairline-soft">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-hairline-soft">
-                      <th className="text-left t-eyebrow text-graphite py-3 pr-6">self</th>
-                      <th className="text-left t-eyebrow text-graphite py-3 pr-6">차단 대상</th>
-                      <th className="text-left t-eyebrow text-graphite py-3">설명</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      ["Player", "Wall + Enemy", "적 위로 못 올라감, 벽 못 통과"],
-                      ["Enemy",  "Wall만",       "Enemy는 Player에 안 막힘, 다른 Enemy 통과"],
-                      ["Wall",   "—",            "정적 (velocity 0)"],
-                    ].map(([s, t, d]) => (
-                      <tr key={s} className="border-b border-hairline">
-                        <td className="t-body-strong text-ink py-4 pr-6 align-top">{s}</td>
-                        <td className="t-body text-ink py-4 pr-6 align-top">{t}</td>
-                        <td className="t-body text-graphite py-4 align-top">{d}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </article>
-
-          {/* (d) FirebaseLogSink */}
-          <article className="mt-16 grid grid-cols-12 gap-x-8 gap-y-6 border-t border-hairline pt-12">
-            <p className="col-span-12 lg:col-span-3 t-eyebrow text-graphite">
-              d · Telemetry
-            </p>
-            <div className="col-span-12 lg:col-span-9 space-y-6">
-              <h3 className="t-heading-md">Logger + FirebaseLogSink</h3>
-              <p className="t-body text-graphite">
-                <span className="text-ink">LOG_INFO(...)</span> 매크로가
-                <span className="text-ink"> __FILE__</span>을 자동 캡쳐 →
-                AuthorMap이 파일별 작성자를 lookup → 콘솔 sink와 Firebase sink로
-                동시 발사. Firebase sink는 별도 worker thread가 100ms마다 또는
-                큐 10개 도달 시 PATCH multi-update로 batch 전송 — 게임 프레임은
-                절대 차단되지 않는다.
-              </p>
-            </div>
-          </article>
+          </div>
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────────
-          04. Demo
-      ────────────────────────────────────────────── */}
+      {/* ──────────── 03. Instance Map (다이어그램) ──────────── */}
       <section
-        id="demo"
+        id="instances"
         className="bg-canvas border-t border-hairline scroll-mt-16"
       >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[160px] min-h-screen flex flex-col">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[140px]">
+          <div className="flex items-baseline gap-8">
+            <span className="t-meta text-stone w-10">03</span>
+            <p className="t-eyebrow text-graphite">Instance Map</p>
+          </div>
+          <h2 className="t-display mt-8 max-w-[22ch]">
+            런타임에 실제로 살아 있는 것들.
+          </h2>
+          <p className="t-subtitle text-graphite mt-10 max-w-[58ch]">
+            Player 1, Enemy 풀 100 (Orc1 50 + Orc2 50), Star는 적이 죽을 때마다
+            동적으로 추가. 각 GameObject는 State + Component 조합으로 구성.
+          </p>
+
+          <div className="mt-16 border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-6 lg:p-10">
+            <InstanceMapDiagram />
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────── 04. Demo ──────────── */}
+      <section id="demo" className="bg-canvas border-t border-hairline scroll-mt-16">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[96px] lg:py-[140px]">
           <div className="flex items-baseline gap-8">
             <span className="t-meta text-stone w-10">04</span>
             <p className="t-eyebrow text-graphite">Demo</p>
           </div>
-
-          <h2 className="t-display mt-8 max-w-[22ch]">
-            See the system in motion.
-          </h2>
-
-          <p className="t-subtitle text-graphite mt-12 max-w-[58ch]">
-            정적 자산을 <span className="text-ink">public/</span> 폴더에 두고 아래
-            placeholder를 교체하세요. 4개의 정적 컷 + 1개의 영상 슬롯이 준비되어
-            있습니다.
-          </p>
+          <h2 className="t-display mt-8 max-w-[22ch]">움직이는 시스템.</h2>
 
           <div className="mt-16 grid grid-cols-12 gap-6">
             {[
-              { label: "메인 화면", tag: "Title screen" },
-              { label: "플레이 중", tag: "Gameplay · Level 1" },
-              { label: "후반 — 빨강 배경", tag: "Gameplay · Level 20+" },
-              { label: "Firebase 로그", tag: "Realtime DB capture" },
+              { label: "메인 화면", tag: "Title" },
+              { label: "플레이 중", tag: "Gameplay · Lv 1" },
+              { label: "후반 — 빨강", tag: "Gameplay · Lv 20+" },
+              { label: "Firebase 로그", tag: "Realtime DB" },
             ].map((m) => (
-              <figure
-                key={m.label}
-                className="col-span-12 sm:col-span-6 space-y-3"
-              >
+              <figure key={m.label} className="col-span-12 sm:col-span-6 space-y-3">
                 <div
                   className="aspect-video w-full"
                   style={{
@@ -438,62 +281,28 @@ class ObservableState : public State {
             ))}
           </div>
 
-          <div className="mt-20">
+          <div className="mt-16">
             <p className="t-eyebrow text-graphite">Full Playthrough</p>
-            <figure className="mt-6">
-              <div
-                className="aspect-video w-full"
-                style={{
-                  backgroundColor: "var(--color-surface-cool)",
-                  borderRadius: "var(--r-lg)",
-                }}
-              />
-              <figcaption className="mt-3 t-meta text-stone">
-                플레이 영상 — &lt;video src=&quot;/play.mp4&quot; controls
-                className=&quot;w-full rounded-[var(--r-lg)]&quot; /&gt; 로 교체
-              </figcaption>
-            </figure>
+            <div
+              className="mt-6 aspect-video w-full"
+              style={{
+                backgroundColor: "var(--color-surface-cool)",
+                borderRadius: "var(--r-lg)",
+              }}
+            />
+            <p className="t-meta text-stone mt-3">
+              영상 자리 — &lt;video src=&quot;/play.mp4&quot; controls className=&quot;w-full rounded-[var(--r-lg)]&quot; /&gt;
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────────
-          CLOSING CTA — scrim
-      ────────────────────────────────────────────── */}
-      <section
-        className="text-on-primary"
-        style={{ backgroundColor: "var(--color-scrim)" }}
-      >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[120px] lg:py-[180px]">
-          <p className="t-eyebrow text-on-primary/70">Resources</p>
-          <h2 className="t-display mt-8 max-w-[22ch]">
-            Read the source. Run the build.
-          </h2>
-          <div className="mt-12 flex flex-wrap gap-3">
-            <a
-              href="https://github.com/RyuDongHo/custom-game-engine"
-              className="btn-primary-on-dark"
-            >
-              GitHub Repository
-            </a>
-            <a
-              href="https://github.com/RyuDongHo/custom-game-engine/pull/9"
-              className="t-link-sm text-on-primary/80 underline underline-offset-4 self-center"
-            >
-              Pull Request #9 →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ─────────────────────────────────────────────
-          FOOTER
-      ────────────────────────────────────────────── */}
+      {/* FOOTER */}
       <footer
         className="text-on-primary"
         style={{ backgroundColor: "var(--color-footer)" }}
       >
-        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[64px]">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-12 py-[72px]">
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-12 lg:col-span-6">
               <p className="t-link-sm text-on-primary lowercase">custom game engine</p>
@@ -535,7 +344,7 @@ class ObservableState : public State {
               </ul>
             </div>
           </div>
-          <div className="mt-16 pt-6 border-t border-on-primary/10 flex justify-between">
+          <div className="mt-12 pt-6 border-t border-on-primary/10 flex justify-between">
             <p className="t-meta text-stone lowercase">custom game engine</p>
             <p className="t-meta text-stone">© 2026</p>
           </div>
