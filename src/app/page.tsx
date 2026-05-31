@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SubscribeDiagram, InstanceMapDiagram } from "./diagrams";
+import { SubscribeDiagram, InstanceMapDiagram, StateLayersDiagram } from "./diagrams";
 
 /* 10분 발표 분량 — Hero + 4 main + footer.
  * 02. Subscribe 패턴이 시스템의 핵심이라 가장 큰 비중. */
@@ -260,6 +260,83 @@ public:
                 상속할 뿐. <span className="text-ink">LifeState</span>는
                 <span className="text-ink"> ObservableState&lt;LifeStateType&gt;</span>,
                 <span className="text-ink"> ScoreState</span>도 같은 방식.
+              </p>
+            </div>
+          </div>
+
+          {/* ── Step 3b. Why two layers ── */}
+          <div className="mt-16 border-t border-hairline pt-12 grid grid-cols-12 gap-x-8 gap-y-6">
+            <div className="col-span-12 lg:col-span-3">
+              <p className="t-meta text-stone">Step 03b</p>
+              <p className="t-eyebrow text-graphite mt-2">Two Layers</p>
+            </div>
+            <div className="col-span-12 lg:col-span-9 space-y-6">
+              <h3 className="t-heading-md">
+                왜 State / ObservableState&lt;T&gt;를 두 단계로?
+              </h3>
+              <p className="t-body text-graphite">
+                ObservableState&lt;T&gt; 하나만 두면 안 될까? — 안 된다. 두
+                단계로 나눈 데에는 명확한 이유가 있다.
+              </p>
+
+              <div className="border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-6 lg:p-10">
+                <StateLayersDiagram />
+              </div>
+
+              <ol className="t-body text-graphite list-decimal pl-6 space-y-3">
+                <li>
+                  <span className="text-ink">GameObject가 vector&lt;State*&gt;로 보관.</span>{" "}
+                  HealthState(int) · LifeState(enum) · ScoreState(int)를 한 컬렉션에
+                  담으려면 공통 base가 필요. ObservableState&lt;T&gt;는 template이라
+                  그 자체가 타입이 아니다 — ObservableState&lt;int&gt;와
+                  ObservableState&lt;LifeStateType&gt;은 서로 무관. 비-template base인
+                  State가 다리 역할.
+                </li>
+                <li>
+                  <span className="text-ink">GetState&lt;T&gt;()의 다형성 lookup.</span>{" "}
+                  base에 virtual 소멸자가 있어야 dynamic_cast로 vector&lt;State*&gt;에서
+                  HealthState*를 안전하게 꺼낼 수 있다.
+                </li>
+                <li>
+                  <span className="text-ink">Subscribe 메커니즘 1회 작성.</span>{" "}
+                  ObservableState&lt;T&gt; 없이 갔다면 HealthState · LifeState ·
+                  ScoreState 각자 subscribers 벡터와 Set / Subscribe를 직접 구현해야
+                  한다. template으로 빼서 한 번만 작성하고 타입만 바꿔 재사용.
+                </li>
+                <li>
+                  <span className="text-ink">Observable이 아닌 State 여지.</span>{" "}
+                  정적 데이터만 들고 통보가 필요 없는 State (예: 미래의 ConfigState)는
+                  State만 직접 상속할 수 있다. 강제하지 않음.
+                </li>
+              </ol>
+
+              <pre className="code-block">
+{`// 1) 다형성 base — vector에 담기 위한 자격
+class State {
+public:
+    GameObject* pOwner = nullptr;
+    virtual ~State() = default;
+};
+
+// 2) 재사용 메커니즘 — 한 번만 작성
+template<typename T>
+class ObservableState : public State { ... };
+
+// 3) 도메인별 helper만 추가
+class HealthState : public ObservableState<int> { int maxHP; ... };
+class LifeState   : public ObservableState<LifeStateType> { ... };
+
+// GameObject가 한 vector에 다 담을 수 있다
+std::vector<State*> states;   // ✅ 다양한 구체 State를 base pointer로`}
+              </pre>
+
+              <p className="t-body text-graphite">
+                요약하면 — <span className="text-ink">State는 &quot;자격&quot;</span>(다형성
+                base), <span className="text-ink">ObservableState&lt;T&gt;는 &quot;기본
+                구현&quot;</span>(Subscribe 메커니즘),{" "}
+                <span className="text-ink">구체 State는 &quot;의미&quot;</span>(HP, 생사,
+                점수). 세 계층은 각자 역할이 다르고, 둘로 합치는 순간 하나의 책임이
+                무너진다.
               </p>
             </div>
           </div>

@@ -77,6 +77,61 @@ export function SubscribeDiagram() {
 }
 
 /* ─────────────────────────────────────────────
+ * Diagram C: State 계층 (State → ObservableState<T> → 구체)
+ * ────────────────────────────────────────── */
+export function StateLayersDiagram() {
+  return (
+    <svg viewBox="0 0 1100 380" className="w-full h-auto" aria-label="State layer diagram">
+      <defs>
+        <marker id="arrL" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#030303" />
+        </marker>
+      </defs>
+
+      {/* L1: State (base) */}
+      <g>
+        <rect x="380" y="30" width="340" height="80" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="4" />
+        <text x="550" y="58" textAnchor="middle" fontSize="16" fontWeight="600" fill="#030303">State</text>
+        <text x="550" y="80" textAnchor="middle" fontSize="11" fill="#404040">다형성 base · vector&lt;State*&gt;에 담기 위함</text>
+        <text x="550" y="96" textAnchor="middle" fontSize="11" fill="#404040">virtual ~State() · GameObject* pOwner</text>
+      </g>
+
+      {/* arrow L1 → L2 */}
+      <line x1="550" y1="115" x2="550" y2="155" stroke="#030303" strokeWidth="1.5" markerEnd="url(#arrL)" />
+      <text x="565" y="140" fontSize="11" fill="#676f7b" fontStyle="italic">template 한 단계</text>
+
+      {/* L2: ObservableState<T> */}
+      <g>
+        <rect x="340" y="160" width="420" height="80" fill="#e7eaf0" stroke="#030303" strokeWidth="1.5" rx="4" />
+        <text x="550" y="188" textAnchor="middle" fontSize="16" fontWeight="600" fill="#030303">ObservableState&lt;T&gt;</text>
+        <text x="550" y="210" textAnchor="middle" fontSize="11" fill="#404040">값 보관 + Subscribe 메커니즘 한 번만 작성</text>
+        <text x="550" y="226" textAnchor="middle" fontSize="11" fill="#404040">T current · Set(next) · Subscribe(cb)</text>
+      </g>
+
+      {/* arrows L2 → 3 concrete */}
+      <line x1="430" y1="245" x2="200" y2="295" stroke="#030303" strokeWidth="1.5" markerEnd="url(#arrL)" />
+      <line x1="550" y1="245" x2="550" y2="295" stroke="#030303" strokeWidth="1.5" markerEnd="url(#arrL)" />
+      <line x1="670" y1="245" x2="900" y2="295" stroke="#030303" strokeWidth="1.5" markerEnd="url(#arrL)" />
+
+      {/* L3 concrete */}
+      <g>
+        <rect x="60"  y="300" width="280" height="60" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="4" />
+        <text x="200" y="324" textAnchor="middle" fontSize="14" fontWeight="600" fill="#030303">HealthState</text>
+        <text x="200" y="344" textAnchor="middle" fontSize="11" fill="#404040">= ObservableState&lt;int&gt; + clamp</text>
+
+        <rect x="410" y="300" width="280" height="60" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="4" />
+        <text x="550" y="324" textAnchor="middle" fontSize="14" fontWeight="600" fill="#030303">LifeState</text>
+        <text x="550" y="344" textAnchor="middle" fontSize="11" fill="#404040">= ObservableState&lt;LifeStateType&gt;</text>
+
+        <rect x="760" y="300" width="280" height="60" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="4" />
+        <text x="900" y="324" textAnchor="middle" fontSize="14" fontWeight="600" fill="#030303">ScoreState · …</text>
+        <text x="900" y="344" textAnchor="middle" fontSize="11" fill="#404040">= ObservableState&lt;int&gt; + Add()</text>
+      </g>
+    </svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
  * Diagram B: Instance Map — 예시 그림 스타일
  * GameLoop::world 큰 외곽 박스 → Player / Enemy Pool / Star 구획
  * 각 인스턴스 안에 component 박스들
