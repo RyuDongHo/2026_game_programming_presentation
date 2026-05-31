@@ -46,3 +46,4 @@ src/app/
 └── globals.css    # Tailwind 기본 + 전역 스타일
 public/             # 정적 자산 (이미지/영상) 위치
 ```
+# 2026_game_programming_presentation
