@@ -836,3 +836,126 @@ export function InstanceMapDiagramB() {
     </svg>
   );
 }
+
+/* ─────────────────────────────────────────────
+ * Object Breakdown — 핵심 GameObject가 "어떤 Component로 조립되고
+ * 각 Component가 무슨 역할을 하는지"를 컴포넌트 박스 + 화살표 주석으로 푼다.
+ * (손그림 인스턴스맵 스타일: 박스 → 역할 설명 + [Data] 표기)
+ * ────────────────────────────────────────── */
+type ObjCol = {
+  x: number; w: number; nameW: number; rowY0: number;
+  title: string; sub: string;
+  rows: [string, string][];
+  notes: string[];
+};
+
+function ObjColumn({ c }: { c: ObjCol }) {
+  const step = 44;
+  const noteY = c.rowY0 + c.rows.length * step + 22;
+  return (
+    <g>
+      <rect x={c.x} y={64} width={c.w} height={672} fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
+      <text x={c.x + 16} y={98} fontSize="16" fontWeight="600" fill="#030303">{c.title}</text>
+      <text x={c.x + 16} y={120} fontSize="12" fill="#404040">{c.sub}</text>
+      {c.rows.map(([name, desc], i) => {
+        const y = c.rowY0 + i * step;
+        const nameRight = c.x + 16 + c.nameW;
+        return (
+          <g key={name}>
+            <rect x={c.x + 16} y={y} width={c.nameW} height="30" fill="#e7eaf0" stroke="#030303" strokeWidth="1.2" rx="3" />
+            <text x={c.x + 26} y={y + 20} fontSize="12" fontWeight="600" fill="#030303">{name}</text>
+            <line x1={nameRight + 2} y1={y + 15} x2={nameRight + 14} y2={y + 15} stroke="#676f7b" strokeWidth="1.2" markerEnd="url(#obArr)" />
+            <text x={nameRight + 20} y={y + 20} fontSize="11.5" fill="#404040">{desc}</text>
+          </g>
+        );
+      })}
+      {c.notes.map((n, i) => (
+        <text key={i} x={c.x + 16} y={noteY + i * 20} fontSize="11" fill="#676f7b">{n}</text>
+      ))}
+    </g>
+  );
+}
+
+export function ObjectBreakdownDiagram() {
+  const columns: ObjCol[] = [
+    {
+      x: 20, w: 470, nameW: 150, rowY0: 150,
+      title: "1. Player", sub: "pos (−0.2, 0) · teamId Player",
+      rows: [
+        ["MeshRenderer", "playerMesh + pMat · b0 월드행렬"],
+        ["PlayerControl", "방향키 입력 → velocity"],
+        ["AttackController", "검 타이머 · CombatSystem.RequestHit"],
+        ["HealthController", "HP 0 → 사망 + 무적 타이머"],
+        ["VelocityController", "pos += velocity · dt"],
+        ["SpriteAnimator", "상태 변경 → 클립 전환 (Subscribe)"],
+        ["BoxCollider", "AABB · Extents ≈ {0.04}"],
+      ],
+      notes: [
+        "[State] Health · Life · Attack · Movement · Score",
+        "추가 부착: HitReactionController · DeathTimer",
+      ],
+    },
+    {
+      x: 510, w: 330, nameW: 142, rowY0: 150,
+      title: "2. GameRoot (시스템 허브)", sub: "pos (0,0) · alwaysUpdate",
+      rows: [
+        ["GameFlowController", "상태 전환 · 재시작"],
+        ["TitleStateController", "타이틀 깜빡임 · 입력"],
+        ["ScoreUIController", "점수 HUD · layer 100"],
+        ["HealthUIController", "하트 HUD · layer 100"],
+      ],
+      notes: [
+        "[State] GameState 보유",
+        "전환 시 BGM · HUD가 Subscribe로 반응",
+      ],
+    },
+    {
+      x: 860, w: 400, nameW: 150, rowY0: 250,
+      title: "3 ~ 32. Enemy Pool (×100)", sub: "비활성 (100,100,10) → Spawn 시 randX",
+      rows: [
+        ["EnemyController", "추적 + Dash (DashPrep→Dashing)"],
+        ["HealthController", "HP 2"],
+        ["SpriteAnimator", "orc1 / orc2"],
+        ["BoxCollider", "AABB · MeshRenderer"],
+      ],
+      notes: [
+        "EnemySpawner 풀: vector&lt;GameObject*&gt; inactivePool",
+        "PreAllocate 50×2 · [Data] dashRange / prepTime",
+      ],
+    },
+  ];
+
+  return (
+    <svg viewBox="0 0 1280 760" className="w-full h-auto" aria-label="Object breakdown">
+      <defs>
+        <marker id="obArr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#676f7b" />
+        </marker>
+      </defs>
+
+      <text x="20" y="36" fontSize="16" fontWeight="600" fill="#030303">
+        GameLoop :: gameWorld — 핵심 오브젝트가 Component로 조립되는 방식
+      </text>
+
+      {columns.map((c) => <ObjColumn key={c.title} c={c} />)}
+
+      {/* Enemy 풀 그리드 (활성/비활성 시각화) */}
+      {Array.from({ length: 3 }).map((_, r) =>
+        Array.from({ length: 5 }).map((__, col) => (
+          <rect
+            key={`p-${r}-${col}`}
+            x={876 + col * 60}
+            y={142 + r * 26}
+            width="54"
+            height="20"
+            fill={r === 0 && col < 2 ? "#ffffff" : "#e7eaf0"}
+            stroke="#c9ccd1"
+            rx="2"
+          />
+        )),
+      )}
+      <text x="1248" y="156" fontSize="10" fill="#676f7b" textAnchor="end">← 활성</text>
+      <text x="1248" y="234" fontSize="10" fill="#676f7b" textAnchor="end">풀(비활성)</text>
+    </svg>
+  );
+}

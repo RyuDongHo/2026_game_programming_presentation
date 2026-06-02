@@ -8,6 +8,7 @@ import {
   StateLayersDiagram,
   FrameworkOverviewDiagram,
   SystemsDiagram,
+  ObjectBreakdownDiagram,
 } from "./diagrams";
 
 /* ════════════════════════════════════════════════════════════
@@ -306,8 +307,8 @@ HP 0  → GameOver`}
         <h2 className="t-display max-w-[18ch]">엔진을 네 개의 레이어로 본다.</h2>
         <p className="t-subtitle text-graphite mt-8 max-w-[60ch] leading-snug">
           Framework가 골격을, State가 데이터를, Component가 행동을, System이 매 프레임
-          전체를 돌린다. 먼저 이 구성을 훑고 → 핵심인 <span className="text-ink">Subscribe 패턴</span> →
-          그 위에서 만든 <span className="text-ink">Spawner 두 전략</span> 순으로 본다.
+          전체를 돌린다. 구성을 훑고 → 오브젝트가 어떻게 조립되는지 보고 →
+          핵심인 <span className="text-ink">Subscribe 패턴</span>으로 들어간다.
         </p>
       </div>
     ),
@@ -424,6 +425,22 @@ HP 0  → GameOver`}
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+    ),
+  },
+  {
+    section: "04 · e · 오브젝트 구성",
+    node: (
+      <div>
+        <Head num="04 e" label="Object Breakdown" />
+        <h2 className="t-heading-md max-w-[30ch]">오브젝트는 Component를 조립해 만든다.</h2>
+        <p className="t-body text-graphite mt-3 max-w-[68ch]">
+          핵심 GameObject 셋(Player · GameRoot · Enemy 풀)이 어떤 Component로 조립되고, 각
+          Component가 무슨 일을 하는지. 로직은 대부분 Subscribe + StateCallbacks로 빠진다.
+        </p>
+        <div className="diagram-fit mt-4 border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-5">
+          <ObjectBreakdownDiagram />
         </div>
       </div>
     ),
@@ -703,164 +720,6 @@ void OnLifeEnemyDead(EnemyController* self, LifeStateType, LifeStateType next) {
 }
 // OnHitReaction / OnAnimAttack / OnCollisionEnter / OnScoreChange ...`}
         </pre>
-      </div>
-    ),
-  },
-
-  /* ═════════ 04. Spawner — 두 전략 (Subscribe 뒤) ═════════ */
-  {
-    section: "04 · Spawner",
-    node: (
-      <div>
-        <Head num="04" label="Spawner — 두 가지 생성 전략" />
-        <h2 className="t-heading-md max-w-[26ch]">적과 별을 어떻게 만들 것인가.</h2>
-        <p className="t-subtitle text-graphite mt-6 max-w-[64ch] leading-snug">
-          EnemySpawner와 StarSpawner는 객체를 만들어 gameWorld에 넣는다. 처음엔 둘 다
-          그때그때 <span className="text-ink">new</span>로 즉석 생성했는데, 그 방식이
-          use-after-free를 불렀다. 그래서 객체 성격에 맞춰 두 전략으로 갈랐다.
-        </p>
-        <div className="mt-10 grid grid-cols-12 gap-6 max-w-[820px]">
-          <div className="col-span-12 lg:col-span-6 border-t border-hairline pt-4">
-            <p className="t-body-strong text-ink">Enemy → Pooling</p>
-            <p className="t-meta text-stone mt-1">수명 길고 재사용 가능 → 미리 만들어 둔다</p>
-          </div>
-          <div className="col-span-12 lg:col-span-6 border-t border-hairline pt-4">
-            <p className="t-body-strong text-ink">Star → Dynamic + reserve</p>
-            <p className="t-meta text-stone mt-1">위치 가변·수명 짧음 → 동적 생성 + capacity 확보</p>
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    section: "04 · Spawner",
-    node: (
-      <div>
-        <Head num="04" label="Spawner · 사고의 발단" />
-        <h2 className="t-heading-md max-w-[24ch]">
-          적을 베면 디버거가 <span className="text-ink">0xFFFF…FFFB</span>를 띄웠다.
-        </h2>
-        <div className="mt-8 space-y-5 max-w-[72ch]">
-          <p className="t-body text-graphite">
-            검 한 번 → CombatSystem이 hitbox 안 적을 순회 → 한 마리 죽음 → Subscribe 체인이
-            OnLifeEnemyDead 발화 → StarSpawner가 <span className="text-ink">loop.AddGameObject(star)</span> →
-            내부적으로 <span className="text-ink">gameWorld.push_back</span>.
-          </p>
-          <p className="t-body text-graphite">
-            그 순간 vector capacity 초과 → <span className="text-ink">재할당</span> → 옛 메모리 free.
-            하지만 CombatSystem의 range-based for는 옛 iterator를 잡고 있었다 → freed 메모리 read →
-            debug heap sentinel <span className="text-ink">0xFFFF…FFFB</span> → access violation.
-          </p>
-        </div>
-      </div>
-    ),
-  },
-  {
-    section: "04 · Spawner",
-    node: (
-      <div>
-        <Head num="04" label="Spawner · 사고 현장 (code)" />
-        <h2 className="t-heading-md max-w-[22ch]">한 줄의 push_back이 부순 것.</h2>
-        <pre className="code-block mt-8 max-w-[880px]">
-{`// CombatSystem.cpp
-for (GameObject* target : gameObjects) {  // begin/end iterator 캡쳐
-    ...
-    targetHs->SetCurrent(prev - hit.damage);
-    //   ↓ Subscribe 도미노 발화
-    //   ↓ → OnHealthAutoDeath → LifeState.SetDead
-    //   ↓ → OnLifeEnemyDead   → StarSpawner.SpawnAt
-    //   ↓ → loop.AddGameObject → gameWorld.push_back
-    //   ↓ → vector 재할당 → 옛 메모리 free
-}                                          // 다음 ++iter → 💥`}
-        </pre>
-      </div>
-    ),
-  },
-  {
-    section: "04 · Spawner",
-    node: (
-      <div>
-        <Head num="04" label="전략 ① Pooling (Enemy)" />
-        <h2 className="t-heading-md max-w-[26ch]">생성을 게임 시작 전에 끝낸다.</h2>
-        <p className="t-body text-graphite mt-4 max-w-[64ch]">
-          게임 시작 전에 100마리를 미리 생성해 풀에 넣고 활성/비활성만 토글.
-          <span className="text-ink"> 런타임에 push_back이 없으므로 iterator invalidation 위험 자체가 없다.</span>
-          (트레이드오프 — 활성+비활성 합쳐 100마리 상한.)
-        </p>
-        <pre className="code-block mt-6 max-w-[880px]">
-{`spawner1->PreAllocate(50);
-spawner2->PreAllocate(50);
-loop.Run();                       // 이후 gameWorld 크기 불변
-
-void Spawn() {                    // 풀에서 꺼내쓰기
-    GameObject* e = inactivePool.back();
-    inactivePool.pop_back();
-    e->position = randomSpawnPos();
-    e->GetState<EnemyState>()->SetMove();
-}
-void ReturnToPool(GameObject* e) {
-    e->position = { 100, 100, 10 };  // 영역 밖 격리
-    e->GetState<EnemyState>()->SetDisabled();
-    inactivePool.push_back(e);
-}`}
-        </pre>
-      </div>
-    ),
-  },
-  {
-    section: "04 · Spawner",
-    node: (
-      <div>
-        <Head num="04" label="전략 ② Dynamic + reserve (Star)" />
-        <h2 className="t-heading-md max-w-[28ch]">capacity를 미리 확보해 재할당을 막는다.</h2>
-        <p className="t-body text-graphite mt-4 max-w-[64ch]">
-          Star는 위치가 매번 다르고 수명도 짧아 풀로 묶기 어렵다. 동적 spawn을 유지하되
-          <span className="text-ink"> reserve(1024)</span>로 capacity를 시작 시점에 확보한다.
-        </p>
-        <pre className="code-block mt-6 max-w-[880px]">
-{`GameLoop::GameLoop() {
-    gameWorld.reserve(1024);   // ← 핵심 한 줄
-}
-
-// 표준 보장: vector가 재할당하지 않는 한 push_back은
-// iterator를 invalidate하지 않는다. 같은 프레임의 새 push는
-// 다음 frame부터 보인다 — 의도된 동작.`}
-        </pre>
-      </div>
-    ),
-  },
-  {
-    section: "04 · Spawner",
-    node: (
-      <div>
-        <Head num="04" label="두 전략 비교" />
-        <h2 className="t-heading-md max-w-[24ch]">객체 성격에 맞게 골라 쓴다.</h2>
-        <div className="mt-8 overflow-x-auto border-t border-b border-hairline-soft max-w-[960px]">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-hairline-soft">
-                <th className="text-left t-eyebrow text-graphite py-3 pr-6">기준</th>
-                <th className="text-left t-eyebrow text-graphite py-3 pr-6">Pooling (Enemy)</th>
-                <th className="text-left t-eyebrow text-graphite py-3">Dynamic + reserve (Star)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ["언제 할당", "게임 시작 전", "런타임 (적 사망 시)"],
-                ["push_back", "X (Run 이후)", "O (매 사망마다)"],
-                ["iterator 안전", "구조적으로 보장", "capacity 안에서만 보장"],
-                ["수량 상한", "PreAllocate (100)", "reserve (1024)"],
-                ["적합한 객체", "수명 길고 재사용 가능", "수명 짧고 위치 가변"],
-              ].map(([k, a, b]) => (
-                <tr key={k} className="border-b border-hairline">
-                  <td className="t-body-strong text-ink py-3.5 pr-6 align-top w-40">{k}</td>
-                  <td className="t-body text-graphite py-3.5 pr-6 align-top">{a}</td>
-                  <td className="t-body text-graphite py-3.5 align-top">{b}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
     ),
   },
