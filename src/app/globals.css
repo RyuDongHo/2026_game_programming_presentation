@@ -235,3 +235,54 @@ html, body {
 
 /* keyboard hint */
 .deck-hint { font-size: 11px; letter-spacing: 0.2px; color: var(--color-stone); white-space: nowrap; }
+
+/* ════════════════════════════════════════════
+   Print / PDF — Ctrl+P → "PDF로 저장" 시 슬라이드 1장 = 1페이지(가로)
+   가로 트랙을 세로 스택으로 펼치고, 각 슬라이드를 한 페이지에 강제 분할.
+   ════════════════════════════════════════════ */
+@media print {
+  @page { size: 1280px 720px; margin: 0; }  /* 16:9 슬라이드 페이지 */
+
+  html, body { background: #fff; }
+
+  /* 인쇄에 불필요한 크롬 숨김 */
+  .deck-topbar, .deck-bottombar, .deck-arrow { display: none !important; }
+
+  /* 고정/가로스크롤 해제 → 모든 슬라이드가 문서 흐름에 펼쳐지게 */
+  .deck {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .deck-track {
+    display: block !important;
+    transform: none !important;
+    transition: none !important;
+    height: auto !important;
+    width: auto !important;
+  }
+
+  /* 한 슬라이드 = 한 페이지. 페이지 박스(@page)에 정확히 맞춤. */
+  .deck-slide {
+    width: 1280px !important;
+    height: 720px !important;
+    flex: none !important;
+    overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+  }
+  .deck-slide:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* inner padding은 화면과 동일하게 유지 → 다크 슬라이드의 full-bleed margin이 그대로 맞음 */
+  .deck-inner { height: 100% !important; overflow: visible !important; }
+
+  /* 다이어그램이 페이지 높이를 넘지 않도록 살짝 줄임 */
+  .diagram-fit svg { max-height: 460px !important; }
+
+  /* 배경/색을 그대로 인쇄(브라우저 기본은 배경 생략) */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
