@@ -115,7 +115,7 @@ const SLIDES: SlideDef[] = [
         <div className="mt-10 grid grid-cols-12 gap-6">
           {[
             { label: "메인 화면", tag: "Title", src: "/main.png" },
-            { label: "초기 — 흙갈색 배경", tag: "Lv 1", src: "/first.png" },
+            { label: "초기", tag: "Lv 1", src: "/first.png" },
             { label: "중반 — 적이 빨라짐", tag: "Lv 10", src: "/mid.png" },
             { label: "후반 — 핏빛 배경", tag: "Lv 20+", src: "/last.png" },
           ].map((m) => (
@@ -839,35 +839,6 @@ void ReturnToPool(GameObject* e) {
       </div>
     ),
   },
-  {
-    section: "05 · Demo",
-    node: (
-      <div>
-        <Head num="05" label="Highlights" />
-        <h2 className="t-heading-md max-w-[24ch]">절정, 그리고 게임 오버.</h2>
-        <div className="mt-8 grid grid-cols-12 gap-6 max-w-[1000px]">
-          {[
-            { label: "후반 — 핏빛 절정", tag: "Lv 20+", src: "/last.png" },
-            { label: "게임 오버", tag: "GameOver", src: "/game_over.png" },
-          ].map((m) => (
-            <figure key={m.label} className="col-span-6 space-y-2">
-              <img
-                src={m.src}
-                alt={m.label}
-                className="aspect-video w-full object-cover"
-                style={{ borderRadius: "var(--r-md)" }}
-              />
-              <figcaption className="flex justify-between items-baseline">
-                <span className="t-body-strong text-ink">{m.label}</span>
-                <span className="t-micro-caps text-slate">{m.tag}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-
   /* ───────── Closing ───────── */
   {
     section: "End",
