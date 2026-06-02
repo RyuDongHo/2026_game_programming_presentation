@@ -760,6 +760,44 @@ void OnLifeEnemyDead(EnemyController* self, LifeStateType, LifeStateType next) {
       </div>
     ),
   },
+  /* ═════════ 05 · QA · Firebase ═════════ */
+  {
+    section: "05 · QA · Firebase",
+    node: (
+      <div>
+        <Head num="05" label="QA · Firebase Logging" />
+        <h2 className="t-heading-md max-w-[28ch]">로그를 Firebase에 남겨, QA에 썼다.</h2>
+        <p className="t-body text-graphite mt-3 max-w-[70ch]">
+          <span className="text-ink">LOG_INFO</span> → 비동기 sink → Firebase Realtime DB로 흘려보내,
+          재현이 어려운 버그(재시작 크래시 등)를 로그 타임라인으로 추적했다.
+        </p>
+        <div className="mt-6 grid grid-cols-12 gap-6">
+          {[
+            { label: "Realtime DB 대시보드", tag: "Dashboard", src: "/firebase_dashboard.png" },
+            { label: "기록된 로그 예시", tag: "Log", src: "/firebase_log_example.png" },
+          ].map((m) => (
+            <figure key={m.label} className="col-span-6 space-y-2">
+              <img
+                src={m.src}
+                alt={m.label}
+                className="w-full object-contain border border-hairline bg-canvas-warm"
+                style={{ aspectRatio: "16 / 10", borderRadius: "var(--r-md)" }}
+              />
+              <figcaption className="flex justify-between items-baseline">
+                <span className="t-body-strong text-ink">{m.label}</span>
+                <span className="t-micro-caps text-slate">{m.tag}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="t-meta text-stone mt-5 max-w-[74ch]">
+          어떤 State 전환·이벤트가 언제 일어났는지 남기되, 매 프레임 반복 로그는 피하고 실제 변경 시점만
+          기록 — quota를 아끼면서 QA에 필요한 흐름만 확보했다.
+        </p>
+      </div>
+    ),
+  },
+
   /* ───────── Closing ───────── */
   {
     section: "End",
