@@ -114,15 +114,17 @@ const SLIDES: SlideDef[] = [
         <h2 className="t-heading-md max-w-[24ch]">난이도가 오를수록 배경이 핏빛으로.</h2>
         <div className="mt-10 grid grid-cols-12 gap-6">
           {[
-            { label: "메인 화면", tag: "Title" },
-            { label: "초기 — 흙갈색 배경", tag: "Lv 1" },
-            { label: "중반 — 적이 빨라짐", tag: "Lv 10" },
-            { label: "후반 — 핏빛 배경", tag: "Lv 20+" },
+            { label: "메인 화면", tag: "Title", src: "/main.png" },
+            { label: "초기 — 흙갈색 배경", tag: "Lv 1", src: "/first.png" },
+            { label: "중반 — 적이 빨라짐", tag: "Lv 10", src: "/mid.png" },
+            { label: "후반 — 핏빛 배경", tag: "Lv 20+", src: "/last.png" },
           ].map((m) => (
             <figure key={m.label} className="col-span-6 space-y-2">
-              <div
-                className="aspect-video w-full"
-                style={{ backgroundColor: "var(--color-surface-cool)", borderRadius: "var(--r-md)" }}
+              <img
+                src={m.src}
+                alt={m.label}
+                className="aspect-video w-full object-cover"
+                style={{ borderRadius: "var(--r-md)" }}
               />
               <figcaption className="flex justify-between items-baseline">
                 <span className="t-body-strong text-ink">{m.label}</span>
@@ -816,14 +818,23 @@ void ReturnToPool(GameObject* e) {
         <p className="t-eyebrow text-graphite mt-10">Full Playthrough</p>
         <div
           className="mt-4 w-full max-w-[900px]"
-          style={{
-            aspectRatio: "16 / 9",
-            backgroundColor: "var(--color-surface-cool)",
-            borderRadius: "var(--r-lg)",
-          }}
-        />
+          style={{ aspectRatio: "16 / 9", borderRadius: "var(--r-lg)", overflow: "hidden", backgroundColor: "#000" }}
+        >
+          <iframe
+            className="w-full h-full"
+            src="https://www.youtube.com/embed/kuB8sLnu2Kk"
+            title="StarEater 데모"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
         <p className="t-meta text-stone mt-3">
-          영상 자리 — &lt;video src=&quot;/play.mp4&quot; controls /&gt;
+          <a
+            href="https://youtu.be/kuB8sLnu2Kk"
+            className="underline underline-offset-2 hover:text-ink"
+          >
+            youtu.be/kuB8sLnu2Kk
+          </a>
         </p>
       </div>
     ),
@@ -833,18 +844,18 @@ void ReturnToPool(GameObject* e) {
     node: (
       <div>
         <Head num="05" label="Highlights" />
-        <h2 className="t-heading-md max-w-[24ch]">장면 넷.</h2>
+        <h2 className="t-heading-md max-w-[24ch]">절정, 그리고 게임 오버.</h2>
         <div className="mt-8 grid grid-cols-12 gap-6 max-w-[1000px]">
           {[
-            { label: "검 휘두름 + 적 사망", tag: "Combat" },
-            { label: "별 픽업 + 점수", tag: "Pickup" },
-            { label: "후반 빨강 배경", tag: "Lv 20+" },
-            { label: "Firebase 로그 — Realtime DB", tag: "Telemetry" },
+            { label: "후반 — 핏빛 절정", tag: "Lv 20+", src: "/last.png" },
+            { label: "게임 오버", tag: "GameOver", src: "/game_over.png" },
           ].map((m) => (
             <figure key={m.label} className="col-span-6 space-y-2">
-              <div
-                className="aspect-video w-full"
-                style={{ backgroundColor: "var(--color-surface-cool)", borderRadius: "var(--r-md)" }}
+              <img
+                src={m.src}
+                alt={m.label}
+                className="aspect-video w-full object-cover"
+                style={{ borderRadius: "var(--r-md)" }}
               />
               <figcaption className="flex justify-between items-baseline">
                 <span className="t-body-strong text-ink">{m.label}</span>
