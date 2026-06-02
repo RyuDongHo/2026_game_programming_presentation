@@ -177,6 +177,63 @@ const SLIDES: SlideDef[] = [
     section: "02 · How to Play",
     node: (
       <div>
+        <Head num="02" label="Combat · 피해 규칙" />
+        <h2 className="t-heading-md max-w-[26ch]">맞으면 깎이고, 베면 떨군다.</h2>
+        <div className="mt-8 grid grid-cols-12 gap-x-12 gap-y-8">
+          <ul className="col-span-12 lg:col-span-7 t-body text-graphite space-y-3 list-disc pl-5">
+            <li>플레이어 기본 체력 <span className="text-ink">HP 10</span> (좌하단 하트로 표시).</li>
+            <li>적과 접촉하면 <span className="text-ink">HP −1</span>, 직후 짧은 <span className="text-ink">무적 시간</span>(피격 깜빡임) 동안 연속 피해를 막는다.</li>
+            <li><span className="text-ink">Space</span> 검 공격 — 바라보는 방향 전방 hitbox.</li>
+            <li>적 체력 <span className="text-ink">HP 2</span> → 두 번 맞히면 처치.</li>
+            <li>처치한 적이 <span className="text-ink">별</span>을 떨구고, 주우면 점수 +1.</li>
+            <li>HP가 <span className="text-ink">0</span>이 되면 게임 오버.</li>
+          </ul>
+          <div className="col-span-12 lg:col-span-5 self-center">
+            <p className="t-eyebrow text-graphite">한 사이클</p>
+            <pre className="code-block mt-4">
+{`적 접근 → 검 공격(×2) → 처치
+       → 별 드롭 → 줍기 → +1
+맞으면 → HP −1 (잠깐 무적)
+HP 0  → GameOver`}
+            </pre>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    section: "02 · How to Play",
+    node: (
+      <div>
+        <Head num="02" label="Enemies · 2종류" />
+        <h2 className="t-heading-md max-w-[28ch]">적은 둘 — 하나는 걷고, 하나는 덤빈다.</h2>
+        <div className="mt-8 grid grid-cols-12 gap-8">
+          <div className="col-span-12 lg:col-span-6 border-t border-hairline pt-5">
+            <p className="t-body-strong text-ink">① Walker (Orc1)</p>
+            <ul className="t-body text-graphite mt-3 space-y-2 list-disc pl-5">
+              <li>플레이어를 향해 일정 속도로 <span className="text-ink">걸어서 추적</span>.</li>
+              <li>접촉 시 피해. 단순하지만 점점 수가 많아진다.</li>
+            </ul>
+          </div>
+          <div className="col-span-12 lg:col-span-6 border-t border-hairline pt-5">
+            <p className="t-body-strong text-ink">② Dasher (Orc2)</p>
+            <ul className="t-body text-graphite mt-3 space-y-2 list-disc pl-5">
+              <li>추적하다 사거리에 들면 잠깐 <span className="text-ink">준비(DashPrep)</span> 후,</li>
+              <li>플레이어 쪽으로 빠르게 <span className="text-ink">대시(돌진)</span>.</li>
+              <li>피하지 않으면 압박이 크다 — 위치 선정이 핵심.</li>
+            </ul>
+          </div>
+        </div>
+        <p className="t-meta text-stone mt-8 max-w-[72ch]">
+          두 종류 모두 시간이 지날수록(10초마다 레벨↑) 속도가 +10%씩 빨라진다. 후반엔 Walker 무리와 Dasher 돌진이 겹쳐 난이도가 가파르게 오른다.
+        </p>
+      </div>
+    ),
+  },
+  {
+    section: "02 · How to Play",
+    node: (
+      <div>
         <Head num="02" label="Game Flow · GameState" />
         <h2 className="t-heading-md max-w-[24ch]">게임은 세 가지 상태를 오간다.</h2>
         <div className="mt-8 grid grid-cols-12 gap-x-12 gap-y-8">
