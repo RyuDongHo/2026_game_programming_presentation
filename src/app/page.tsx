@@ -323,7 +323,7 @@ HP 0  → GameOver`}
           {[
             ["FrameWork/", "GameLoop · GameObject · State · Component (base)"],
             ["States/", "HealthState · LifeState · ScoreState · EnemyState · GameState"],
-            ["Components/", "PlayerControl · EnemyController · HealthController · SpriteAnimator …"],
+            ["Components/", "PlayerControl · EnemyController · MapTintController · SpriteAnimator …"],
             ["Callbacks/", "StateCallbacks — 모든 반응 로직이 모이는 한 파일"],
             ["Systems", "CollisionSystem · CombatSystem · EnemySpawner · StarSpawner"],
           ].map(([k, v]) => (
@@ -333,6 +333,10 @@ HP 0  → GameOver`}
             </div>
           ))}
         </dl>
+        <p className="t-meta text-stone mt-6 max-w-[80ch]">
+          GameLoop은 게임 전용 규칙을 들고 있지 않는다. 레벨에 따른 맵 색 변화 같은 연출도
+          <span className="text-ink"> MapTintController</span>로 분리해, 루프는 lifecycle·시스템 실행만 조율한다.
+        </p>
       </div>
     ),
   },
@@ -681,6 +685,7 @@ hs->SetCurrent(hs->GetCurrent() - 1);`}
             <li>새 Component → 같은 4메서드 골격 복붙.</li>
             <li>&quot;이 컴포넌트가 뭘 하지?&quot; → Start의 Subscribe만 보면 됨.</li>
             <li>분기·반응 로직은 전부 한 파일(StateCallbacks)에 응집.</li>
+            <li>매 프레임 State를 <span className="text-ink">polling</span>하던 컴포넌트도 콜백이 갱신하는 <span className="text-ink">local flag</span>(isVisible · mode 등)로 통일 — Update/Render는 그 flag만 읽는다.</li>
           </ul>
           <div className="col-span-12 lg:col-span-6 border-l border-hairline pl-8">
             <p className="t-eyebrow text-graphite">한눈에</p>

@@ -104,7 +104,6 @@ export function FrameworkOverviewDiagram() {
           ["CombatSystem",        "combatSystem"],
           ["vector<EnemySpawner*>", "spawners"],
           ["GameState*",          "cachedGameState"],
-          ["LevelLayout*",        "cachedLevelLayout"],
           ["float",               "deltaTime"],
           ["bool",                "isRunning"],
         ].map(([t, n], i) => (
@@ -195,7 +194,7 @@ export function FrameworkOverviewDiagram() {
         <text x="490" y="402" fontSize="11" fill="#404040">모든 reaction 로직이 한 파일에 응집</text>
         {[
           "OnHealthAutoDeath / OnHitReaction",
-          "OnControlLife / OnAnimAttack / …",
+          "OnControlEnemy / OnGameFlowMode (모드 미러)",
           "OnCollisionEnter / OnLifeEnemyDead",
         ].map((l, i) => (
           <text key={l} x="490" y={424 + i * 14} fontSize="11" fontFamily="ui-monospace" fill="#1a1a1a">{l}</text>
@@ -818,7 +817,7 @@ export function InstanceMapDiagramB() {
 
       {/* Walls + Systems */}
       <rect x="516" y="70" width="448" height="412" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
-      <text x="536" y="104" fontSize="17" fontWeight="600" fill="#030303">Walls · Systems</text>
+      <text x="536" y="104" fontSize="17" fontWeight="600" fill="#030303">Walls · Systems · Map</text>
       <text x="536" y="138" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">WALLS (정적 충돌체)</text>
       {walls.map((w, i) => (
         <g key={w}>
@@ -833,6 +832,10 @@ export function InstanceMapDiagramB() {
           <text x="548" y={278 + i * 34} fontSize="12.5" fill="#030303">{s}</text>
         </g>
       ))}
+      <text x="536" y="412" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">MAP — StageTerrain</text>
+      <rect x="536" y="422" width="408" height="50" fill="#ffffff" stroke="#c9ccd1" rx="3" />
+      <text x="548" y="441" fontSize="12" fill="#030303">MeshRenderer (Dungeon.png) · LevelLayout</text>
+      <text x="548" y="461" fontSize="12" fill="#030303">MapTintController — 레벨↑ → 맵 색 보간 (GameLoop서 분리)</text>
     </svg>
   );
 }
