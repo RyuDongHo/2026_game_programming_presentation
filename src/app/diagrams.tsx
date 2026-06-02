@@ -678,3 +678,161 @@ export function InstanceMapDiagram() {
     </svg>
   );
 }
+
+/* ─────────────────────────────────────────────
+ * Instance Map — 분할 ①: Player + Enemy Pool
+ * 청중 가독성을 위해 큰 박스 / 큰 글자로 두 컬럼만.
+ * ────────────────────────────────────────── */
+export function InstanceMapDiagramA() {
+  const states = [
+    "AttackState — NoAttack / SwordAttack",
+    "LifeState — Alive / Dead",
+    "MovementState — 이동 방향",
+    "HealthState — HP 0..10",
+    "ScoreState — ★ 점수",
+  ];
+  const comps = [
+    "PlayerControl — 입력 → velocity",
+    "AttackController — 검 타이머",
+    "HealthController — 무적 + 자동사망",
+    "VelocityController — pos += v·dt",
+    "SpriteAnimator — 클립 전환",
+    "HitReactionController — 붉은 깜빡임",
+    "DeathTimer — 사망 후 N초",
+    "BoxCollider — AABB hitbox",
+    "MeshRenderer — player atlas",
+  ];
+  const eStates = [
+    "EnemyState — Disabled / Move / Dead",
+    "HealthState — HP 2",
+    "LifeState — Alive / Dead",
+  ];
+  const eComps = [
+    "EnemyController — 추적 + Dash",
+    "HealthController",
+    "VelocityController",
+    "SpriteAnimator — orc1 / orc2",
+    "HitReactionController",
+    "BoxCollider · MeshRenderer",
+  ];
+  return (
+    <svg viewBox="0 0 1000 660" className="w-full h-auto" aria-label="Instance map — Player & Enemy Pool">
+      <rect x="10" y="44" width="980" height="600" fill="none" stroke="#030303" strokeWidth="2" rx="8" />
+      <text x="24" y="32" fontSize="15" fontWeight="600" fill="#030303">GameLoop :: gameWorld — Player + Enemy Pool</text>
+
+      {/* Player */}
+      <rect x="36" y="70" width="448" height="552" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
+      <text x="56" y="104" fontSize="17" fontWeight="600" fill="#030303">1. Player</text>
+      <text x="56" y="126" fontSize="12.5" fill="#404040">pos (−0.2, 0) · scale 1.15 · teamId Player</text>
+      <text x="56" y="160" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">STATES</text>
+      {states.map((s, i) => (
+        <g key={s}>
+          <rect x="56" y={170 + i * 34} width="408" height="26" fill="#e7eaf0" stroke="#c9ccd1" rx="3" />
+          <text x="68" y={187 + i * 34} fontSize="12.5" fill="#030303">{s}</text>
+        </g>
+      ))}
+      <text x="56" y="362" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">COMPONENTS</text>
+      {comps.map((c, i) => (
+        <g key={c}>
+          <rect x="56" y={372 + i * 27} width="408" height="22" fill="#ffffff" stroke="#c9ccd1" rx="3" />
+          <text x="68" y={387 + i * 27} fontSize="12" fill="#030303">{c}</text>
+        </g>
+      ))}
+
+      {/* Enemy Pool */}
+      <rect x="516" y="70" width="448" height="552" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
+      <text x="536" y="104" fontSize="17" fontWeight="600" fill="#030303">2. Enemy Pool (×100)</text>
+      <text x="536" y="126" fontSize="12.5" fill="#404040">활성: spawn된 적 · 비활성: (100,100,10) 격리</text>
+      {Array.from({ length: 4 }).map((_, r) =>
+        Array.from({ length: 7 }).map((__, c) => (
+          <rect
+            key={`${r}-${c}`}
+            x={536 + c * 58}
+            y={142 + r * 26}
+            width="52"
+            height="20"
+            fill={r === 0 && c < 3 ? "#ffffff" : "#e7eaf0"}
+            stroke="#c9ccd1"
+            rx="2"
+          />
+        )),
+      )}
+      <text x="956" y="156" fontSize="10" fill="#676f7b" textAnchor="end">← 활성</text>
+      <text x="956" y="238" fontSize="10" fill="#676f7b" textAnchor="end">풀 (비활성)</text>
+
+      <text x="536" y="280" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">STATES</text>
+      {eStates.map((s, i) => (
+        <g key={s}>
+          <rect x="536" y={290 + i * 34} width="408" height="26" fill="#e7eaf0" stroke="#c9ccd1" rx="3" />
+          <text x="548" y={307 + i * 34} fontSize="12.5" fill="#030303">{s}</text>
+        </g>
+      ))}
+      <text x="536" y="416" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">COMPONENTS</text>
+      {eComps.map((c, i) => (
+        <g key={c}>
+          <rect x="536" y={426 + i * 30} width="408" height="24" fill="#ffffff" stroke="#c9ccd1" rx="3" />
+          <text x="548" y={443 + i * 30} fontSize="12" fill="#030303">{c}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
+ * Instance Map — 분할 ②: Star(동적) + Walls / Systems
+ * ────────────────────────────────────────── */
+export function InstanceMapDiagramB() {
+  const starComps = [
+    "PickupItem — scoreValue = 1",
+    "SpriteAnimator — 13 frame idle",
+    "BoxCollider — size 0.05",
+    "MeshRenderer — Star.png",
+  ];
+  const systems = [
+    "CollisionSystem — BoxCollider prevention",
+    "CombatSystem — 공격 hitbox 큐",
+    "EnemySpawner × 2 — Orc1 / Orc2",
+    "StarSpawner — 적 사망 위치에 Star",
+  ];
+  const walls = ["Wall_BoundsTop", "Wall_BoundsBottom", "Wall_BoundsLeft", "Wall_BoundsRight"];
+  return (
+    <svg viewBox="0 0 1000 520" className="w-full h-auto" aria-label="Instance map — Star & World">
+      <rect x="10" y="44" width="980" height="460" fill="none" stroke="#030303" strokeWidth="2" rx="8" />
+      <text x="24" y="32" fontSize="15" fontWeight="600" fill="#030303">gameWorld — Star (동적 spawn) + Walls · Systems</text>
+
+      {/* Star */}
+      <rect x="36" y="70" width="448" height="412" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
+      <text x="56" y="104" fontSize="17" fontWeight="600" fill="#030303">3. Star (동적 spawn)</text>
+      <text x="56" y="126" fontSize="12.5" fill="#404040">적 사망 시 사망 위치에 new GameObject 생성</text>
+      <text x="56" y="160" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">COMPONENTS</text>
+      {starComps.map((c, i) => (
+        <g key={c}>
+          <rect x="56" y={170 + i * 32} width="408" height="26" fill="#ffffff" stroke="#c9ccd1" rx="3" />
+          <text x="68" y={188 + i * 32} fontSize="12.5" fill="#030303">{c}</text>
+        </g>
+      ))}
+      <text x="56" y="334" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">동작</text>
+      <text x="56" y="360" fontSize="12.5" fill="#404040">Player 접촉 → ScoreState.Add(+1)</text>
+      <text x="56" y="384" fontSize="12.5" fill="#404040">pendingDestroy = true → 다음 cleanup에서 제거</text>
+      <text x="56" y="420" fontSize="12" fill="#676f7b" fontStyle="italic">풀링 X — 위치 가변·수명 짧음 → 동적 + reserve(1024)</text>
+
+      {/* Walls + Systems */}
+      <rect x="516" y="70" width="448" height="412" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
+      <text x="536" y="104" fontSize="17" fontWeight="600" fill="#030303">Walls · Systems</text>
+      <text x="536" y="138" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">WALLS (정적 충돌체)</text>
+      {walls.map((w, i) => (
+        <g key={w}>
+          <rect x={536 + (i % 2) * 208} y={150 + Math.floor(i / 2) * 30} width="196" height="24" fill="#1a1a1a" rx="3" />
+          <text x={536 + (i % 2) * 208 + 12} y={166 + Math.floor(i / 2) * 30} fontSize="12" fill="#ffffff">{w}</text>
+        </g>
+      ))}
+      <text x="536" y="250" fontSize="12" fontWeight="600" fill="#676f7b" letterSpacing="0.5">SYSTEMS (GameLoop 멤버 + 외부)</text>
+      {systems.map((s, i) => (
+        <g key={s}>
+          <rect x="536" y={260 + i * 34} width="408" height="28" fill="#e7eaf0" stroke="#c9ccd1" rx="3" />
+          <text x="548" y={278 + i * 34} fontSize="12.5" fill="#030303">{s}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
