@@ -45,7 +45,7 @@ const SLIDES: SlideDef[] = [
         className="h-full flex flex-col justify-center text-on-primary"
         style={{ backgroundColor: "var(--color-scrim)", margin: "-84px -48px -92px", padding: "84px 48px 92px" }}
       >
-        <div className="max-w-[1200px] mx-auto w-full">
+        <div className="max-w-[1440px] mx-auto w-full">
           <p className="t-eyebrow text-on-primary/70">2026 · Game Programming · Presentation</p>
           <h1 className="t-display mt-6 max-w-[14ch]">StarEater</h1>
           <p className="t-subtitle mt-8 max-w-[40ch] text-on-primary/80">
@@ -66,7 +66,7 @@ const SLIDES: SlideDef[] = [
       <div>
         <Head num="—" label="Programme" />
         <h2 className="t-display max-w-[20ch]">오늘 다룰 다섯 가지.</h2>
-        <ul className="mt-12 divide-y divide-hairline border-y border-hairline max-w-[760px]">
+        <ul className="mt-12 divide-y divide-hairline border-y border-hairline max-w-[920px]">
           {[
             ["01", "게임 소개 및 플레이방법"],
             ["02", "게임 룰 설명 · 흐름도"],
@@ -113,7 +113,7 @@ const SLIDES: SlideDef[] = [
       <div>
         <Head num="01" label="Screens" />
         <h2 className="t-heading-md max-w-[24ch]">난이도가 오를수록 배경이 핏빛으로.</h2>
-        <div className="mt-10 grid grid-cols-12 gap-6">
+        <div className="mt-6 grid grid-cols-12 gap-6 max-w-[1200px]">
           {[
             { label: "메인 화면", tag: "Title", src: "/main.png" },
             { label: "초기", tag: "Lv 1", src: "/first.png" },
@@ -319,7 +319,7 @@ HP 0  → GameOver`}
       <div>
         <Head num="04" label="프로젝트 구성 · 폴더 = 레이어" />
         <h2 className="t-heading-md max-w-[24ch]">폴더 구조가 곧 클래스 레이어다.</h2>
-        <dl className="mt-8 divide-y divide-hairline border-y border-hairline max-w-[880px]">
+        <dl className="mt-8 divide-y divide-hairline border-y border-hairline max-w-[1060px]">
           {[
             ["FrameWork/", "GameLoop · GameObject · State · Component (base)"],
             ["States/", "HealthState · LifeState · ScoreState · EnemyState · GameState"],
@@ -406,7 +406,7 @@ HP 0  → GameOver`}
           매 프레임 X/Y 축을 분리해 이동을 시도하고, 다음 위치가 차단 대상과 겹치면 그 축
           이동만 취소 (밀어내기 X). 차단 대상은 self/other 팀 조합으로 다르다.
         </p>
-        <div className="mt-8 overflow-x-auto border-t border-b border-hairline-soft max-w-[920px]">
+        <div className="mt-8 overflow-x-auto border-t border-b border-hairline-soft max-w-[1100px]">
           <table className="w-full">
             <thead>
               <tr className="border-b border-hairline-soft">
@@ -443,7 +443,7 @@ HP 0  → GameOver`}
           핵심 GameObject 셋(Player · GameRoot · Enemy 풀)이 어떤 Component로 조립되고, 각
           Component가 무슨 일을 하는지. 로직은 대부분 Subscribe + StateCallbacks로 빠진다.
         </p>
-        <div className="diagram-fit mt-4 border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-5">
+        <div className="diagram-fit mt-2 border border-hairline rounded-[var(--r-lg)] bg-canvas-warm p-5">
           <ObjectBreakdownDiagram />
         </div>
       </div>
@@ -459,7 +459,7 @@ HP 0  → GameOver`}
         className="h-full flex flex-col justify-center text-on-primary"
         style={{ backgroundColor: "var(--color-scrim)", margin: "-84px -48px -92px", padding: "84px 48px 92px" }}
       >
-        <div className="max-w-[1200px] mx-auto w-full">
+        <div className="max-w-[1440px] mx-auto w-full">
           <p className="t-eyebrow text-on-primary/60">★ 특이한 부분 1 · Subscribe Pattern</p>
           <h2 className="t-display mt-6 max-w-[20ch]">
             데이터가 바뀌면, 듣고 있던 사람들이 반응한다.
@@ -514,7 +514,7 @@ HP 0  → GameOver`}
       <div>
         <Head num="Step 03" label="Container" />
         <h2 className="t-heading-md max-w-[24ch]">ObservableState&lt;T&gt; — 30줄짜리 척추.</h2>
-        <pre className="code-block mt-7 max-w-[820px]">
+        <pre className="code-block mt-7 max-w-[1000px]">
 {`template<typename T>
 class ObservableState : public State {
     T current;
@@ -540,7 +540,7 @@ public:
       <div>
         <Head num="Step 04" label="Subscribe" />
         <h2 className="t-heading-md max-w-[24ch]">한 번 등록하고 잊는다.</h2>
-        <pre className="code-block mt-7 max-w-[860px]">
+        <pre className="code-block mt-7 max-w-[1040px]">
 {`// HealthController.cpp
 void HealthController::Start() {
     HealthState* hs = pOwner->GetState<HealthState>();
@@ -566,7 +566,7 @@ void HitReactionController::Start() {
       <div>
         <Head num="Step 05" label="Set" />
         <h2 className="t-heading-md max-w-[28ch]">트리거는 한 줄. 무엇이 반응할지는 모름.</h2>
-        <pre className="code-block mt-7 max-w-[760px]">
+        <pre className="code-block mt-7 max-w-[920px]">
 {`// (a) CombatSystem.cpp — 검 공격 적중
 hs->SetCurrent(hs->GetCurrent() - hit.damage);
 
@@ -602,7 +602,7 @@ hs->SetCurrent(hs->GetCurrent() - 1);`}
           <li><span className="text-ink">새 반응</span> (점수 표시) — Callback 추가 + Subscribe. 기존 코드 0줄 변경.</li>
           <li>&quot;HP가 줄면 무엇이 일어나지?&quot;가 한 곳에서 다 보인다.</li>
         </ul>
-        <div className="grid grid-cols-12 gap-6 mt-8 max-w-[680px]">
+        <div className="grid grid-cols-12 gap-6 mt-8 max-w-[840px]">
           {[
             { n: "5", l: "한 트리거가 일으키는 반응" },
             { n: "1줄", l: "트리거 측 코드" },
@@ -632,7 +632,7 @@ hs->SetCurrent(hs->GetCurrent() - 1);`}
           전부 <span className="text-ink">Start · Input · Update · Render</span> 네 메서드로 통일되고,
           실제 로직은 모두 callback으로 빠진다.
         </p>
-        <div className="mt-8 grid grid-cols-12 gap-6 max-w-[860px]">
+        <div className="mt-8 grid grid-cols-12 gap-6 max-w-[1040px]">
           {[
             ["Start()", "한 번 — Subscribe 등록"],
             ["Input()", "매 프레임 입력"],
@@ -654,7 +654,7 @@ hs->SetCurrent(hs->GetCurrent() - 1);`}
       <div>
         <Head num="04" label="예시 · 얇아진 Component" />
         <h2 className="t-heading-md max-w-[28ch]">HealthController는 데이터 + 등록뿐.</h2>
-        <pre className="code-block mt-7 max-w-[900px]">
+        <pre className="code-block mt-7 max-w-[1100px]">
 {`class HealthController : public Component {
     float invincibilityRemaining = 0.f;        // ① 데이터만 보유
 
@@ -680,7 +680,7 @@ hs->SetCurrent(hs->GetCurrent() - 1);`}
       <div>
         <Head num="04" label="일관성의 효과" />
         <h2 className="t-heading-md max-w-[26ch]">어떤 Component든 읽는 법이 같다.</h2>
-        <div className="mt-8 grid grid-cols-12 gap-x-12 gap-y-6 max-w-[920px]">
+        <div className="mt-8 grid grid-cols-12 gap-x-12 gap-y-6 max-w-[1100px]">
           <ul className="col-span-12 lg:col-span-6 t-body text-graphite space-y-3 list-disc pl-6">
             <li>새 Component → 같은 4메서드 골격 복붙.</li>
             <li>&quot;이 컴포넌트가 뭘 하지?&quot; → Start의 Subscribe만 보면 됨.</li>
@@ -710,7 +710,7 @@ hs->SetCurrent(hs->GetCurrent() - 1);`}
           모든 reaction을 <span className="text-ink">Callbacks/StateCallbacks.cpp</span>의 자유 함수로 모은다.
           &quot;HP가 줄면 무엇이 일어나는가&quot;는 한 파일을 훑으면 다 보인다.
         </p>
-        <pre className="code-block mt-6 max-w-[900px]">
+        <pre className="code-block mt-6 max-w-[1100px]">
 {`// StateCallbacks.cpp — 한 파일에 모든 반응
 void OnHealthAutoDeath(HealthController* self, int prev, int next) {
     if (!(prev > 0 && next <= 0)) return;
@@ -738,7 +738,7 @@ void OnLifeEnemyDead(EnemyController* self, LifeStateType, LifeStateType next) {
         <h2 className="t-display max-w-[16ch]">움직이는 시스템.</h2>
         <p className="t-eyebrow text-graphite mt-10">Full Playthrough</p>
         <div
-          className="mt-4 w-full max-w-[900px]"
+          className="mt-4 w-full max-w-[1100px]"
           style={{ aspectRatio: "16 / 9", borderRadius: "var(--r-lg)", overflow: "hidden", backgroundColor: "#000" }}
         >
           <iframe
@@ -807,7 +807,7 @@ void OnLifeEnemyDead(EnemyController* self, LifeStateType, LifeStateType next) {
         className="h-full flex flex-col justify-center text-on-primary"
         style={{ backgroundColor: "var(--color-footer)", margin: "-84px -48px -92px", padding: "84px 48px 92px" }}
       >
-        <div className="max-w-[1200px] mx-auto w-full">
+        <div className="max-w-[1440px] mx-auto w-full">
           <p className="t-eyebrow text-on-primary/60">Thank you</p>
           <h2 className="t-display mt-6 max-w-[18ch]">Subscribe 하나로 엮인 작은 엔진.</h2>
           <div className="mt-10 flex flex-wrap gap-x-10 gap-y-3 t-body text-on-primary/70">
