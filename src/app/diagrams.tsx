@@ -795,9 +795,9 @@ export function InstanceMapDiagramB() {
   ];
   const walls = ["Wall_BoundsTop", "Wall_BoundsBottom", "Wall_BoundsLeft", "Wall_BoundsRight"];
   return (
-    <svg viewBox="0 0 1000 520" className="w-full h-auto" aria-label="Instance map — Star & World">
-      <rect x="10" y="44" width="980" height="460" fill="none" stroke="#030303" strokeWidth="2" rx="8" />
-      <text x="24" y="32" fontSize="15" fontWeight="600" fill="#030303">gameWorld — Star (동적 spawn) + Walls · Systems</text>
+    <svg viewBox="0 0 1000 700" className="w-full h-auto" aria-label="Instance map — Star, World & GameRoot">
+      <rect x="10" y="44" width="980" height="630" fill="none" stroke="#030303" strokeWidth="2" rx="8" />
+      <text x="24" y="32" fontSize="15" fontWeight="600" fill="#030303">gameWorld — Star (동적) + Walls · Systems · Map + GameRoot</text>
 
       {/* Star */}
       <rect x="36" y="70" width="448" height="412" fill="#fefefe" stroke="#030303" strokeWidth="1.5" rx="6" />
